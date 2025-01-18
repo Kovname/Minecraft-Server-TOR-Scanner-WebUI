@@ -1,0 +1,611 @@
+@font-face {
+    font-family: 'Minecraft';
+    src: url('/static/fonts/Minecraft-Bold.otf') format('opentype');
+    font-weight: bold;
+    font-style: normal;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+}
+
+body {
+    background-color: #1a1b1e;
+    color: #ffffff;
+    min-height: 100vh;
+}
+
+.container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 1rem;
+}
+
+h1 {
+    text-align: center;
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    font-family: 'Minecraft', sans-serif;
+    background: linear-gradient(45deg, #4CAF50, #81C784);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 0 30px rgba(76, 175, 80, 0.3);
+}
+
+.content {
+    display: grid;
+    grid-template-columns: minmax(350px, 400px) 1fr;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.card {
+    background: #22252b;
+    border-radius: 12px;
+    padding: 1rem;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+    height: 545px;
+    display: flex;
+    flex-direction: column;
+}
+
+.card h2 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    color: #fff;
+    font-family: 'Minecraft', sans-serif;
+}
+
+.input-group {
+    margin-bottom: 0.75rem;
+}
+
+input[type="text"],
+input[type="number"],
+select {
+    width: 100%;
+    padding: 0.75rem;
+    margin-bottom: 0.75rem;
+    border: 1px solid #2f333a;
+    border-radius: 8px;
+    background: #1a1b1e;
+    color: #ffffff;
+    font-size: 0.95rem;
+    transition: all 0.2s ease;
+}
+
+input[type="text"]:focus,
+input[type="number"]:focus,
+select:focus {
+    outline: none;
+    border-color: #4CAF50;
+    box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);
+}
+
+.select-wrapper {
+    position: relative;
+    margin-bottom: 0.75rem;
+}
+
+.select-wrapper::after {
+    content: '▼';
+    position: absolute;
+    right: 1rem;
+    top: 42%;
+    transform: translateY(-50%);
+    color: #4CAF50;
+    pointer-events: none;
+    font-size: 0.8rem;
+}
+
+select {
+    appearance: none;
+    cursor: pointer;
+}
+
+.port-inputs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+}
+
+.button-group {
+    margin-top: auto;
+    padding-top: 0.2rem;
+}
+
+.scan-controls {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.primary-button {
+    flex: 1;
+    padding: 0.75rem;
+    border: none;
+    margin: 12px 0;
+    padding: 12px;
+    border-radius: 12px;
+    background: #4CAF50;
+    color: white;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-family: 'Minecraft', sans-serif;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.secondary-button {
+    padding: 0.75rem;
+    border: none;
+    border-radius: 12px;
+    background: #4361ee;
+    color: white;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    height: 50px;
+    width: 50px;
+    min-width: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.button-icon {
+    width: 25px;
+    height: 25px;
+}
+
+.primary-button:hover {
+    background: #43a047;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(76, 175, 80, 0.2);
+}
+
+.secondary-button:hover {
+    background: #3a53d9;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(67, 97, 238, 0.2);
+}
+
+.primary-button:disabled,
+.secondary-button:disabled {
+    background: #2f333a;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.progress-container {
+    margin-top: 1rem;
+    padding-top: 0rem;
+    border-top: 1px solid #2f333a;
+    margin-bottom: 0;
+}
+
+.progress-bar {
+    height: 6px;
+    background: #2f333a;
+    border-radius: 3px;
+    overflow: hidden;
+    margin-bottom: 0.75rem;
+}
+
+.progress {
+    height: 100%;
+    background: linear-gradient(90deg, #4CAF50, #81C784);
+    transition: width 0.3s ease;
+}
+
+.progress-text {
+    font-size: 0.9rem;
+    color: #888;
+    text-align: center;
+    margin: 0;
+    padding: 0;
+}
+
+.tor-toggle {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 12px 0;
+    padding: 12px;
+    background: #1a1b1e;
+    border-radius: 8px;
+    border: 1px solid #2f333a;
+    height: 46.4px;
+}
+
+.info-icon {
+    color: #4CAF50;
+    cursor: help;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    transition: color 0.2s;
+    position: relative;
+    margin-left: 5px;
+}
+
+.info-icon i {
+    pointer-events: none;
+}
+
+.info-icon:hover {
+    color: #45a049;
+}
+
+.info-icon::after {
+    content: attr(data-tooltip);
+    visibility: hidden;
+    opacity: 0;
+    position: absolute;
+    background: #1a1b1e;
+    color: #fff;
+    padding: 12px 15px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-family: 'Minecraft', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    white-space: pre;
+    z-index: 1000;
+    width: max-content;
+    max-width: 350px;
+    left: 30px;
+    top: 50%;
+    transform: translateY(-50%);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+    border: 1px solid #2f333a;
+    line-height: 1.4;
+    transition: opacity 0.2s, visibility 0.2s;
+}
+
+.info-icon:hover::after {
+    visibility: visible;
+    opacity: 1;
+}
+
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 46px;
+    height: 24px;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #1a1b1e;
+    transition: .3s;
+    border-radius: 34px;
+    border: 1px solid #2f333a;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    bottom: 2px;
+    background-color: #666;
+    transition: .3s;
+    border-radius: 50%;
+}
+
+input:checked + .slider {
+    background-color: #1a1b1e;
+    border-color: #4CAF50;
+}
+
+input:checked + .slider:before {
+    transform: translateX(21px);
+    background-color: #4CAF50;
+}
+
+.tor-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #fff;
+    font-family: 'Minecraft', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    line-height: 1;
+}
+
+.tor-status {
+    color: #666;
+    transition: color 0.3s;
+    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+}
+
+.tor-status.connected {
+    color: #4CAF50;
+}
+
+.tor-status.error {
+    color: #ff4444;
+}
+
+.servers-found {
+    font-family: 'Minecraft', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-size: 16px;
+    color: #666;
+}
+
+.servers-found #serversCount {
+    font-family: 'Minecraft', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #4CAF50;
+    font-weight: bold;
+    font-size: 18px;
+}
+
+.results-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.results-header h2 {
+    margin: 0;
+}
+
+.table-container {
+    max-height: calc(100vh - 350px);
+    overflow-y: auto;
+    margin-top: 0px;
+}
+
+.table-container::-webkit-scrollbar {
+    width: 8px;
+}
+
+.table-container::-webkit-scrollbar-track {
+    background: #1a1d21;
+    border-radius: 4px;
+}
+
+.table-container::-webkit-scrollbar-thumb {
+    background: #2a2d33;
+    border-radius: 4px;
+}
+
+.table-container::-webkit-scrollbar-thumb:hover {
+    background: #3a3d43;
+}
+
+.results-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 0px;
+}
+
+.results-table table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 0;
+}
+
+.results-table thead th {
+    text-align: left;
+    padding: 13px;
+    background-color: #1a1b1e;
+    color: #fff;
+    font-family: 'Minecraft', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-weight: normal;
+}
+
+th {
+    text-align: left;
+    padding: 0.75rem;
+    background: #1a1b1e;
+    font-weight: 500;
+    font-size: 0.9rem;
+    color: #888;
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    font-family: 'Minecraft', sans-serif;
+}
+
+td {
+    padding: 0.75rem;
+    border-top: 1px solid #2f333a;
+    font-size: 0.95rem;
+    white-space: nowrap;
+}
+
+td:nth-child(3) {
+    white-space: normal;
+    min-width: 200px;
+}
+
+.server-row {
+    cursor: pointer;
+    transition: background-color 0.2s;
+    position: relative;
+}
+
+.server-row:hover {
+    background: #2a2d33;
+}
+
+.new-server-indicator {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    background-color: #2ecc71;
+    border-radius: 50%;
+    margin-left: 8px;
+    position: relative;
+    top: -1px;
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(4px);
+}
+
+.modal-content {
+    background: #22252b;
+    margin: 5% auto;
+    padding: 2rem;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 800px;
+    max-height: 85vh;
+    overflow-y: auto;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.close {
+    color: #888;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.close:hover {
+    color: #fff;
+}
+
+.info-section {
+    margin: 1.5rem 0;
+    padding: 1.5rem;
+    background: #1a1b1e;
+    border-radius: 8px;
+    border: 1px solid #2f333a;
+}
+
+.info-section h3 {
+    margin-bottom: 1rem;
+    color: #4CAF50;
+    font-size: 1.1rem;
+}
+
+.player-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 0.8rem;
+}
+
+.player-item {
+    background: #22252b;
+    padding: 0.8rem;
+    border-radius: 6px;
+    text-align: center;
+    border: 1px solid #2f333a;
+    transition: all 0.2s ease;
+}
+
+.player-item:hover {
+    border-color: #4CAF50;
+    transform: translateY(-2px);
+}
+
+.copyable-address {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.copy-btn {
+    background: transparent;
+    border: none;
+    color: #4CAF50;
+    cursor: pointer;
+    padding: 4px 8px;
+    font-size: 14px;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+}
+
+.copy-btn:hover {
+    background-color: rgba(76, 175, 80, 0.1);
+}
+
+.copyable-nick {
+    cursor: pointer;
+    transition: background-color 0.2s;
+    padding: 4px 8px;
+    border-radius: 4px;
+    display: inline-block;
+}
+
+.copyable-nick:hover {
+    background-color: rgba(76, 175, 80, 0.1);
+}
+
+.copy-tooltip {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 4px;
+    z-index: 10000;
+    animation: fadeInOut 2s ease-in-out;
+}
+
+@keyframes fadeInOut {
+    0% { opacity: 0; }
+    15% { opacity: 1; }
+    85% { opacity: 1; }
+    100% { opacity: 0; }
+}
+
+@media (max-width: 1024px) {
+    .content {
+        grid-template-columns: 1fr;
+    }
+    
+    .container {
+        padding: 1rem;
+    }
+}
+
+@media (max-width: 600px) {
+    .port-inputs {
+        grid-template-columns: 1fr;
+    }
+    
+    th, td {
+        padding: 0.8rem;
+    }
+}

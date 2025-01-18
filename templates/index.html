@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minecraft Server Scanner</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Minecraft Server Scanner</h1>
+        
+        <div class="content">
+            <div class="left-panel">
+                <div class="card">
+                    <h2>Scan Settings</h2>
+                    <form id="scanForm">
+                        <div class="input-group">
+                            <input type="text" id="target" placeholder="Enter target IP or domain" required>
+                        </div>
+                        
+                        <div class="select-wrapper">
+                            <select id="scanMode">
+                                <option value="normal">Normal</option>
+                                <option value="fast">Fast</option>
+                                <option value="thorough">Thorough</option>
+                            </select>
+                        </div>
+
+                        <div class="select-wrapper">
+                            <select id="portRange">
+                                <option value="manual">Manual range</option>
+                                <option value="default">Default range (25565)</option>
+                                <option value="extended">Extended range</option>
+                            </select>
+                        </div>
+
+                        <div class="port-inputs">
+                            <input type="number" id="startPort" value="1" min="1" max="65535" placeholder="Start port">
+                            <input type="number" id="endPort" value="65535" min="1" max="65535" placeholder="End port">
+                        </div>
+
+                        <div class="tor-toggle">
+                            <label class="switch">
+                                <input type="checkbox" id="useTor">
+                                <span class="slider"></span>
+                            </label>
+                            <span class="tor-label">Use Tor <span id="torStatus" class="tor-status">Disabled</span></span>
+                            <div class="info-icon" data-tooltip="To use Tor:&#10;1. Download Tor Browser&#10;2. Find torrc in Tor Browser folder:&#10;   \Browser\TorBrowser\Data\Tor\torrc&#10;3. Add to torrc:&#10;   SocksPort 9050&#10;   ControlPort 9051&#10;   CookieAuthentication 1&#10;   MaxCircuitDirtiness 10&#10;   NewCircuitPeriod 5&#10;4. Run Tor Browser">
+                                <i class="fas fa-info-circle"></i>
+                            </div>
+                        </div>
+
+                        <div class="button-group">
+                            <div class="scan-controls">
+                                <button type="submit" id="startScan" class="primary-button">Start Scan</button>
+                                <button type="button" id="pauseScan" class="secondary-button" disabled>
+                                    <svg viewBox="0 0 24 24" class="button-icon pause-icon">
+                                        <path fill="currentColor" d="M14,19H18V5H14M6,19H10V5H6V19Z" />
+                                    </svg>
+                                    <svg viewBox="0 0 24 24" class="button-icon play-icon" style="display: none;">
+                                        <path fill="currentColor" d="M8,5.14V19.14L19,12.14L8,5.14Z" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+
+                    <div class="progress-container">
+                        <div class="progress-bar">
+                            <div class="progress" id="scanProgress"></div>
+                        </div>
+                        <div class="progress-text" id="progressText">Ready to scan</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="right-panel">
+                <div class="card">
+                    <div class="results-header">
+                        <h2>Scan Results</h2>
+                        <div class="servers-found">Servers found: <span id="serversCount">0</span></div>
+                    </div>
+                    <div class="table-container">
+                        <table class="results-table">
+                            <thead>
+                                <tr>
+                                    <th>Address</th>
+                                    <th>Version</th>
+                                    <th>Description</th>
+                                    <th>Players</th>
+                                    <th>Ping</th>
+                                </tr>
+                            </thead>
+                            <tbody id="serverList"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="serverModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2 id="modalTitle">Server Details</h2>
+            <div class="modal-body">
+                <div id="basicInfo" class="info-section">
+                    <h3>Basic Information</h3>
+                </div>
+                <div class="info-section">
+                    <h3>Players Online</h3>
+                    <div id="playerList" class="player-list"></div>
+                </div>
+                <div id="additionalInfo" class="info-section">
+                    <h3>Additional Information</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
