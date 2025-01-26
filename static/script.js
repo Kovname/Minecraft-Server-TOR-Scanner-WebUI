@@ -23,6 +23,8 @@ document.addEventListener('DOMContentLoaded', () => {
     let openedServers = new Set();
     let knownServers = new Set();
     const newServerSound = new Audio('/static/sounds/new.mp3');
+    let checkingAllServers = false;
+    let serverStates = {};
 
     modalClose.onclick = () => modal.style.display = "none";
     window.onclick = (event) => {
@@ -40,40 +42,57 @@ document.addEventListener('DOMContentLoaded', () => {
                 indicator.remove();
             }
         }
+
+        modalTitle.textContent = `${server.address}`;
+        
+        const checkServerBtn = document.getElementById('checkServerBtn');
+        checkServerBtn.onclick = async () => {
+            checkServerBtn.classList.add('checking');
+            checkServerBtn.disabled = true;
+            await checkServer(server, true);
+            checkServerBtn.classList.remove('checking');
+            checkServerBtn.disabled = false;
+        };
+
+        updateServerModal(server);
+        modal.style.display = "block";
+    }
+
+    function updateServerModal(server) {
         const basicInfo = document.getElementById('basicInfo');
         const playerList = document.getElementById('playerList');
         const additionalInfo = document.getElementById('additionalInfo');
-        const modalTitle = document.getElementById('modalTitle');
 
-        modalTitle.innerHTML = `Server Details - <span class="copyable-address">${server.address}<button class="copy-btn" onclick="copyToClipboard('${server.address}')"><i class="fas fa-copy"></i></button></span>`;
-        
-        const cleanDescription = server.description.replace(/§[0-9a-fk-or]/gi, '');
+        const cleanDescription = cleanMinecraftText(server.description);
 
         basicInfo.innerHTML = `
-            <p><strong>Version:</strong> ${server.version}</p>
-            <p><strong>Description:</strong> ${cleanDescription}</p>
-            <p><strong>Latency:</strong> ${server.latency}</p>
-            <p><strong>Players:</strong> ${server.players}</p>
+            <h3>Basic Information</h3>
+            <div class="info-grid">
+                <p><strong>Version:</strong> ${server.version}</p>
+                <p><strong>Description:</strong> ${cleanDescription}</p>
+                <p><strong>Latency:</strong> ${server.latency}</p>
+                <p><strong>Players:</strong> ${server.players}</p>
+                <p><strong>Status:</strong> <span class="${server.isOnline ? 'online' : 'offline'}">${server.isOnline ? 'Online' : 'Offline'}</span></p>
+            </div>
         `;
 
         if (server.player_list && server.player_list.length > 0) {
             playerList.innerHTML = server.player_list
-                .map(player => `<div class="player-item copyable-nick" onclick="copyToClipboard('${player}')">${player}</div>`)
+                .map(player => `<div class="player-item" onclick="copyToClipboard('${player}')">${cleanMinecraftText(player)}</div>`)
                 .join('');
         } else {
             playerList.innerHTML = '<p>No players online</p>';
         }
 
-        let additionalHtml = '';
-        if (server.plugins) {
-            additionalHtml += `<p><strong>Plugins:</strong> ${server.plugins.join(', ')}</p>`;
+        let additionalHtml = '<h3>Additional Information</h3><div class="info-grid">';
+        if (server.plugins && server.plugins.length > 0) {
+            additionalHtml += `<p><strong>Plugins:</strong> ${server.plugins.map(p => cleanMinecraftText(p)).join(', ')}</p>`;
         }
-        if (server.mods) {
-            additionalHtml += `<p><strong>Mods:</strong> ${server.mods.join(', ')}</p>`;
+        if (server.mods && server.mods.length > 0) {
+            additionalHtml += `<p><strong>Mods:</strong> ${server.mods.map(m => cleanMinecraftText(m)).join(', ')}</p>`;
         }
-        additionalInfo.innerHTML = additionalHtml || '<p>No additional information available</p>';
-
-        modal.style.display = "block";
+        additionalHtml += '</div>';
+        additionalInfo.innerHTML = additionalHtml;
     }
 
     portRange.addEventListener('change', () => {
@@ -250,9 +269,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function updateServerList(servers) {
         serverList.innerHTML = '';
-        currentServers = servers;
+        currentServers = servers.map(server => {
+            if (serverStates[server.address]) {
+                return { ...server, ...serverStates[server.address] };
+            }
+            return { ...server, isOnline: true };
+        });
         
-        servers.forEach(server => {
+        currentServers.forEach(server => {
             if (!knownServers.has(server.address)) {
                 knownServers.add(server.address);
                 newServerSound.play().catch(e => console.log('Error playing sound:', e));
@@ -264,19 +288,21 @@ document.addEventListener('DOMContentLoaded', () => {
             row.onclick = () => showServerDetails(server);
             
             const indicator = !openedServers.has(server.address) ? '<span class="new-server-indicator"></span>' : '';
+            const pingClass = server.isOnline === false ? 'ping-cell offline' : 'ping-cell';
             
             row.innerHTML = `
                 <td>${server.address}</td>
                 <td>${server.version}</td>
                 <td>${cleanMinecraftText(server.description)}</td>
                 <td>${server.players}</td>
-                <td>${server.latency}${indicator}</td>
+                <td class="${pingClass}">${server.latency}${indicator}</td>
             `;
             
             serverList.appendChild(row);
         });
         
-        serversCount.textContent = servers.length;
+        serversCount.textContent = currentServers.length;
+        updateCheckAllButton();
     }
 
     window.copyToClipboard = async function(text) {
@@ -296,4 +322,82 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     window.showServerDetails = showServerDetails;
+
+    async function checkServer(server, updateUI = true) {
+        try {
+            const address = server.address.split(':');
+            const host = address[0];
+            const port = address[1] || '25565';
+            
+            const response = await fetch(`https://api.mcstatus.io/v2/status/java/${host}:${port}`);
+            const data = await response.json();
+            
+            serverStates[server.address] = {
+                isOnline: data.online,
+                players: data.online ? `${data.players.online}/${data.players.max}` : server.players,
+                version: data.online ? data.version.name_clean : server.version,
+                description: data.online ? data.motd.clean : server.description,
+                player_list: data.online ? (data.players.list ? data.players.list.map(p => p.name_clean) : []) : server.player_list
+            };
+            
+            Object.assign(server, serverStates[server.address]);
+            
+            if (updateUI) {
+                updateServerUI(server);
+            }
+            
+            return data.online;
+        } catch (error) {
+            console.error('Server check error:', error);
+            serverStates[server.address] = { isOnline: false };
+            server.isOnline = false;
+            if (updateUI) {
+                updateServerUI(server);
+            }
+            return false;
+        }
+    }
+
+    function updateServerUI(server) {
+        const row = document.querySelector(`[data-server="${server.address}"]`);
+        if (row) {
+            const cells = row.getElementsByTagName('td');
+            cells[2].textContent = cleanMinecraftText(server.description);
+            cells[3].textContent = server.players;
+            const pingCell = cells[4];
+            const indicator = pingCell.querySelector('.new-server-indicator');
+            pingCell.className = server.isOnline ? 'ping-cell' : 'ping-cell offline';
+            pingCell.innerHTML = `${server.latency}${indicator ? indicator.outerHTML : ''}`;
+        }
+        
+        if (modal.style.display === "block" && modalTitle.textContent.includes(server.address)) {
+            updateServerModal(server);
+        }
+    }
+
+    document.getElementById('checkAllServers').addEventListener('click', async function() {
+        if (checkingAllServers || currentServers.length === 0) return;
+        
+        const button = this;
+        button.classList.add('checking');
+        button.disabled = true;
+        checkingAllServers = true;
+        
+        try {
+            for (const server of currentServers) {
+                if (!checkingAllServers) break;
+                await checkServer(server, true);
+                await new Promise(resolve => setTimeout(resolve, 1000));
+            }
+        } finally {
+            button.classList.remove('checking');
+            button.disabled = currentServers.length === 0;
+            checkingAllServers = false;
+        }
+    });
+
+    function updateCheckAllButton() {
+        const button = document.getElementById('checkAllServers');
+        button.disabled = currentServers.length === 0;
+    }
 });

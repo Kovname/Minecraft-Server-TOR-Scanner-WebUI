@@ -1,4 +1,10 @@
 __pycache__/
 *.pyc
 .env
-scan_logs/ 
+.venv
+env/
+venv/
+ENV/
+scan_logs/
+.DS_Store
+*.log 

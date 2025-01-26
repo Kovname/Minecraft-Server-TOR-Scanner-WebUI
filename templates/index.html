@@ -80,7 +80,12 @@
                 <div class="card">
                     <div class="results-header">
                         <h2>Scan Results</h2>
-                        <div class="servers-found">Servers found: <span id="serversCount">0</span></div>
+                        <div class="results-controls">
+                            <button id="checkAllServers" class="secondary-button check-all-btn" disabled>
+                                <i class="fas fa-sync-alt"></i> Check All Servers
+                            </button>
+                            <div class="servers-found">Servers found: <span id="serversCount">0</span></div>
+                        </div>
                     </div>
                     <div class="table-container">
                         <table class="results-table">
@@ -103,8 +108,13 @@
 
     <div id="serverModal" class="modal">
         <div class="modal-content">
-            <span class="close">&times;</span>
-            <h2 id="modalTitle">Server Details</h2>
+            <div class="modal-header">
+                <h2 id="modalTitle">Server Details</h2>
+                <button id="checkServerBtn" class="check-server-btn">
+                    <i class="fas fa-sync-alt"></i> Check Status
+                </button>
+                <span class="close">&times;</span>
+            </div>
             <div class="modal-body">
                 <div id="basicInfo" class="info-section">
                     <h3>Basic Information</h3>

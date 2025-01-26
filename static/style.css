@@ -609,3 +609,241 @@ td:nth-child(3) {
         padding: 0.8rem;
     }
 }
+
+.check-server-section {
+    margin: 1rem 0;
+    text-align: center;
+}
+
+.check-server-btn {
+    background: #4CAF50;
+    color: white;
+    border: none;
+    padding: 0.8rem 1.5rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: 'Minecraft', sans-serif;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0 auto;
+    transition: all 0.2s ease;
+}
+
+.check-server-btn:hover {
+    background: #43a047;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(76, 175, 80, 0.2);
+}
+
+.check-server-btn i {
+    font-size: 1.1rem;
+}
+
+.check-server-btn.checking {
+    background: #666;
+    cursor: not-allowed;
+}
+
+.check-server-btn.checking i {
+    animation: spin 1s linear infinite;
+}
+
+.server-check-status {
+    margin-top: 0.8rem;
+    font-family: 'Minecraft', sans-serif;
+    font-size: 0.9rem;
+}
+
+.server-check-status.online {
+    color: #4CAF50;
+}
+
+.server-check-status.offline {
+    color: #f44336;
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.results-controls {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.check-all-btn {
+    background: transparent;
+    color: #4CAF50;
+    border: 2px solid #4CAF50;
+    padding: 0.4rem 0.8rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-family: 'Minecraft', sans-serif;
+    font-size: 0.85rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s ease;
+    min-width: 180px;
+    height: 32px;
+    justify-content: center;
+    white-space: nowrap;
+}
+
+.check-all-btn:hover:not(:disabled) {
+    background: #4CAF50;
+    color: white;
+    transform: translateY(-1px);
+}
+
+.check-all-btn:disabled {
+    background: transparent;
+    border-color: #444;
+    color: #444;
+    cursor: not-allowed;
+    opacity: 0.7;
+    transform: none;
+}
+
+.check-all-btn.checking {
+    background: #666;
+    border-color: #666;
+    color: white;
+    cursor: not-allowed;
+}
+
+.modal-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    position: relative;
+    padding-right: 2rem;
+}
+
+.modal-header h2 {
+    margin: 0;
+    flex: 1;
+}
+
+.modal-header .check-server-btn {
+    background: transparent;
+    color: #4CAF50;
+    border: 2px solid #4CAF50;
+    padding: 0.4rem 0.8rem;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    min-width: 120px;
+}
+
+.modal-header .check-server-btn:hover:not(:disabled) {
+    background: #4CAF50;
+    color: white;
+}
+
+.modal-header .close {
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.info-section {
+    background: #1a1b1e;
+    border-radius: 8px;
+    padding: 1.2rem;
+    margin-bottom: 1rem;
+}
+
+.info-section h3 {
+    color: #4CAF50;
+    margin-bottom: 1rem;
+    font-size: 1.1rem;
+    font-family: 'Minecraft', sans-serif;
+}
+
+.info-section p {
+    margin: 0.5rem 0;
+    line-height: 1.5;
+}
+
+.info-section p strong {
+    color: #888;
+    margin-right: 0.5rem;
+}
+
+.info-section .online {
+    color: #4CAF50;
+}
+
+.info-section .offline {
+    color: #f44336;
+}
+
+.player-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+    gap: 0.8rem;
+}
+
+.player-item {
+    background: #22252b;
+    padding: 0.6rem;
+    border-radius: 4px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.player-item:hover {
+    background: #2a2d33;
+    transform: translateY(-1px);
+}
+
+.info-grid {
+    display: grid;
+    gap: 0.8rem;
+}
+
+.info-grid p {
+    margin: 0;
+    display: flex;
+    align-items: baseline;
+}
+
+.info-grid p strong {
+    min-width: 100px;
+    display: inline-block;
+}
+
+.info-section {
+    background: #1a1b1e;
+    border-radius: 8px;
+    padding: 1.2rem;
+    margin-bottom: 1rem;
+}
+
+.info-section h3 {
+    color: #4CAF50;
+    margin-bottom: 1rem;
+    font-size: 1.1rem;
+    font-family: 'Minecraft', sans-serif;
+}
+
+.info-section .online {
+    color: #4CAF50;
+    font-weight: 500;
+}
+
+.info-section .offline {
+    color: #f44336;
+    font-weight: 500;
+}
