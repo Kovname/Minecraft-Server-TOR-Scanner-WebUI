@@ -25,6 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const newServerSound = new Audio('/static/sounds/new.mp3');
     let checkingAllServers = false;
     let serverStates = {};
+    let allPlayersList = {};  // Для хранения всех игроков по серверам
 
     modalClose.onclick = () => modal.style.display = "none";
     window.onclick = (event) => {
@@ -43,7 +44,15 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        modalTitle.textContent = `${server.address}`;
+        modalTitle.innerHTML = `
+            <div class="modal-title-content">
+                <span class="copyable-address">${server.address}
+                    <button class="copy-btn" onclick="copyToClipboard('${server.address}')">
+                        <i class="fas fa-copy"></i>
+                    </button>
+                </span>
+            </div>
+        `;
         
         const checkServerBtn = document.getElementById('checkServerBtn');
         checkServerBtn.onclick = async () => {
@@ -63,13 +72,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const playerList = document.getElementById('playerList');
         const additionalInfo = document.getElementById('additionalInfo');
 
-        const cleanDescription = cleanMinecraftText(server.description);
-
         basicInfo.innerHTML = `
             <h3>Basic Information</h3>
             <div class="info-grid">
                 <p><strong>Version:</strong> ${server.version}</p>
-                <p><strong>Description:</strong> ${cleanDescription}</p>
+                <p><strong>Description:</strong> ${cleanMinecraftText(server.description)}</p>
                 <p><strong>Latency:</strong> ${server.latency}</p>
                 <p><strong>Players:</strong> ${server.players}</p>
                 <p><strong>Status:</strong> <span class="${server.isOnline ? 'online' : 'offline'}">${server.isOnline ? 'Online' : 'Offline'}</span></p>
@@ -78,10 +85,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (server.player_list && server.player_list.length > 0) {
             playerList.innerHTML = server.player_list
-                .map(player => `<div class="player-item" onclick="copyToClipboard('${player}')">${cleanMinecraftText(player)}</div>`)
+                .map(player => `
+                    <div class="player-item ${player.online ? '' : 'offline'}" 
+                         onclick="copyToClipboard('${player.name}')">
+                        ${cleanMinecraftText(player.name)}
+                    </div>
+                `)
                 .join('');
         } else {
-            playerList.innerHTML = '<p>No players online</p>';
+            playerList.innerHTML = '<p>No players found</p>';
         }
 
         let additionalHtml = '<h3>Additional Information</h3><div class="info-grid">';
@@ -180,6 +192,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     scanInterval = null;
                 }
                 progressText.textContent = 'Scan stopped';
+                saveState();
             } else {
                 throw new Error('Failed to stop scan');
             }
@@ -273,7 +286,23 @@ document.addEventListener('DOMContentLoaded', () => {
             if (serverStates[server.address]) {
                 return { ...server, ...serverStates[server.address] };
             }
-            return { ...server, isOnline: true };
+            // Инициализируем новый сервер с правильным форматом данных
+            if (!allPlayersList[server.address]) {
+                allPlayersList[server.address] = new Map();
+            }
+            if (server.player_list) {
+                server.player_list.forEach(player => {
+                    allPlayersList[server.address].set(player, true);
+                });
+            }
+            return {
+                ...server,
+                isOnline: true,
+                player_list: Array.from(allPlayersList[server.address].entries()).map(([name, isOnline]) => ({
+                    name: name,
+                    online: isOnline
+                }))
+            };
         });
         
         currentServers.forEach(server => {
@@ -303,6 +332,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         serversCount.textContent = currentServers.length;
         updateCheckAllButton();
+        saveState();
     }
 
     window.copyToClipboard = async function(text) {
@@ -332,12 +362,32 @@ document.addEventListener('DOMContentLoaded', () => {
             const response = await fetch(`https://api.mcstatus.io/v2/status/java/${host}:${port}`);
             const data = await response.json();
             
+            // Инициализируем список игроков для сервера, если его еще нет
+            if (!allPlayersList[server.address]) {
+                allPlayersList[server.address] = new Map();
+            }
+
+            // Обновляем статус существующих игроков на оффлайн
+            allPlayersList[server.address].forEach((status, player) => {
+                allPlayersList[server.address].set(player, false);
+            });
+
+            // Обновляем или добавляем онлайн игроков
+            if (data.online && data.players.list) {
+                data.players.list.forEach(player => {
+                    allPlayersList[server.address].set(player.name_clean, true);
+                });
+            }
+            
             serverStates[server.address] = {
                 isOnline: data.online,
                 players: data.online ? `${data.players.online}/${data.players.max}` : server.players,
                 version: data.online ? data.version.name_clean : server.version,
                 description: data.online ? data.motd.clean : server.description,
-                player_list: data.online ? (data.players.list ? data.players.list.map(p => p.name_clean) : []) : server.player_list
+                player_list: Array.from(allPlayersList[server.address].entries()).map(([name, isOnline]) => ({
+                    name: name,
+                    online: isOnline
+                }))
             };
             
             Object.assign(server, serverStates[server.address]);
@@ -346,6 +396,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 updateServerUI(server);
             }
             
+            saveState();
             return data.online;
         } catch (error) {
             console.error('Server check error:', error);
@@ -400,4 +451,107 @@ document.addEventListener('DOMContentLoaded', () => {
         const button = document.getElementById('checkAllServers');
         button.disabled = currentServers.length === 0;
     }
+
+    document.getElementById('downloadLogs').addEventListener('click', async function() {
+        const button = this;
+        if (button.classList.contains('loading')) return;
+        
+        button.classList.add('loading');
+        const originalText = button.innerHTML;
+        button.innerHTML = '<i class="fas fa-spinner"></i> Loading logs...';
+        
+        try {
+            const response = await fetch('/get_logs');
+            const data = await response.json();
+            
+            if (data.logs && data.logs.length > 0) {
+                // Создаем содержимое ZIP файла
+                const zip = new JSZip();
+                
+                // Добавляем каждый лог в ZIP
+                data.logs.forEach(log => {
+                    zip.file(log.filename, log.content);
+                });
+                
+                // Генерируем ZIP файл
+                const content = await zip.generateAsync({type: "blob"});
+                
+                // Создаем ссылку для скачивания
+                const downloadUrl = URL.createObjectURL(content);
+                const link = document.createElement('a');
+                link.href = downloadUrl;
+                link.download = `minecraft_scan_logs_${new Date().toISOString().split('T')[0]}.zip`;
+                
+                // Запускаем скачивание
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                
+                // Очищаем URL
+                setTimeout(() => URL.revokeObjectURL(downloadUrl), 100);
+            } else {
+                throw new Error('No logs found');
+            }
+        } catch (error) {
+            console.error('Error downloading logs:', error);
+            alert('Failed to download logs. No scan logs found or an error occurred.');
+        } finally {
+            button.classList.remove('loading');
+            button.innerHTML = originalText;
+        }
+    });
+
+    function saveState() {
+        const state = {
+            currentServers,
+            openedServers: Array.from(openedServers),
+            knownServers: Array.from(knownServers),
+            serverStates,
+            allPlayersList: Object.fromEntries(
+                Object.entries(allPlayersList).map(([key, value]) => [
+                    key,
+                    Array.from(value.entries())
+                ])
+            ),
+            isScanning,
+            scanProgress: progressBar.style.width,
+            scanText: progressText.textContent
+        };
+        localStorage.setItem('scannerState', JSON.stringify(state));
+    }
+
+    function loadState() {
+        const savedState = localStorage.getItem('scannerState');
+        if (savedState) {
+            const state = JSON.parse(savedState);
+            currentServers = state.currentServers;
+            openedServers = new Set(state.openedServers);
+            knownServers = new Set(state.knownServers);
+            serverStates = state.serverStates;
+            allPlayersList = Object.fromEntries(
+                Object.entries(state.allPlayersList).map(([key, value]) => [
+                    key,
+                    new Map(value)
+                ])
+            );
+            isScanning = state.isScanning;
+            
+            // Восстанавливаем UI
+            progressBar.style.width = state.scanProgress;
+            progressText.textContent = state.scanText;
+            updateServerList(currentServers);
+            
+            // Если сканирование было активно, возобновляем проверку статуса
+            if (isScanning) {
+                scanInterval = setInterval(checkScanStatus, 1000);
+                document.getElementById('startScan').textContent = 'Stop';
+                document.getElementById('pauseScan').disabled = false;
+            }
+        }
+    }
+
+    loadState();  // Загружаем сохраненное состояние
+    
+    // Добавим сохранение состояния перед закрытием страницы
+    window.addEventListener('beforeunload', saveState);
 });

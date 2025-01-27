@@ -537,6 +537,17 @@ td:nth-child(3) {
     transform: translateY(-2px);
 }
 
+.player-item.offline {
+    color: #666;
+    border-color: #2f333a;
+    background: #1a1b1e;
+}
+
+.player-item.offline:hover {
+    border-color: #4CAF50;
+    background: #1a1b1e;
+}
+
 .copyable-address {
     display: inline-flex;
     align-items: center;
@@ -846,4 +857,78 @@ td:nth-child(3) {
 .info-section .offline {
     color: #f44336;
     font-weight: 500;
+}
+
+.footer {
+    text-align: center;
+    padding: 1rem;
+    margin-top: 1rem;
+    opacity: 0.7;
+    transition: opacity 0.2s ease;
+}
+
+.footer:hover {
+    opacity: 1;
+}
+
+.download-logs-btn {
+    background: transparent;
+    color: #666;
+    border: 1px solid #2f333a;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-family: 'Minecraft', sans-serif;
+    font-size: 0.8rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s ease;
+}
+
+.download-logs-btn:hover {
+    color: #4CAF50;
+    border-color: #4CAF50;
+    background: rgba(76, 175, 80, 0.1);
+}
+
+.download-logs-btn i {
+    font-size: 0.9rem;
+}
+
+.download-logs-btn.loading {
+    cursor: wait;
+    opacity: 0.7;
+}
+
+.download-logs-btn.loading i {
+    animation: spin 1s linear infinite;
+}
+
+.modal-title-content {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.copyable-address {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'Minecraft', sans-serif;
+}
+
+.copy-btn {
+    background: transparent;
+    border: none;
+    color: #4CAF50;
+    cursor: pointer;
+    padding: 4px 8px;
+    font-size: 14px;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+.copy-btn:hover {
+    background-color: rgba(76, 175, 80, 0.1);
 }

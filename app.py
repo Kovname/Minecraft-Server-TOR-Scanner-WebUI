@@ -1,6 +1,6 @@
 import os
 from datetime import datetime
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, session
 import scanner
 import threading
 import logging
@@ -163,9 +163,37 @@ def stop_scan():
 def scan_status():
     global is_scanning, found_servers, current_progress, total_ports
     progress = (current_progress / total_ports * 100) if total_ports > 0 else 0
+    
+    # Сохраняем состояние сканирования в сессии
+    session['scan_state'] = {
+        'is_scanning': is_scanning,
+        'progress': progress,
+        'found_servers': found_servers,
+        'current_progress': current_progress,
+        'total_ports': total_ports
+    }
+    
     return jsonify({
         'is_scanning': is_scanning,
         'progress': progress,
+        'found_servers': found_servers,
+        'servers_count': len(found_servers)
+    })
+
+@app.route('/restore_scan_state')
+def restore_scan_state():
+    global is_scanning, found_servers, current_progress, total_ports
+    
+    scan_state = session.get('scan_state')
+    if scan_state:
+        is_scanning = scan_state['is_scanning']
+        current_progress = scan_state['current_progress']
+        total_ports = scan_state['total_ports']
+        found_servers = scan_state['found_servers']
+    
+    return jsonify({
+        'is_scanning': is_scanning,
+        'progress': (current_progress / total_ports * 100) if total_ports > 0 else 0,
         'found_servers': found_servers,
         'servers_count': len(found_servers)
     })
@@ -187,6 +215,9 @@ def cleanup():
         )
 
 atexit.register(cleanup)
+
+# Добавим секретный ключ для сессий
+app.secret_key = 'your-secret-key-here'  # Замените на случайный секретный ключ
 
 if __name__ == '__main__':
     app.run(debug=False, port=5000, threaded=True)

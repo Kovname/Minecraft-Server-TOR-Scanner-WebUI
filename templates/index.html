@@ -6,6 +6,7 @@
     <title>Minecraft Server Scanner</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js"></script>
 </head>
 <body>
     <div class="container">
@@ -128,6 +129,12 @@
                 </div>
             </div>
         </div>
+    </div>
+
+    <div class="footer">
+        <button id="downloadLogs" class="download-logs-btn">
+            <i class="fas fa-download"></i> Download Scan Logs
+        </button>
     </div>
 
     <script src="{{ url_for('static', filename='script.js') }}"></script>
